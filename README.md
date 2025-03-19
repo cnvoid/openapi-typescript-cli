@@ -2,8 +2,8 @@
 通过 openapi 文档生成 Typescript 接口请求层代码。 适用于 __FastAPi__， __swagger__，__OpenAPI__ 等符合 __Openapi v3__ 规范的JSON接口文档
 
 ## 为什么写这个工具
-  虽然现在有很多项目可以实现 openapi 生成 api 层代码， 虽然他们很优秀，但是他们 __不够优雅__
-  eg: [https://editor.swagger.io/](https://editor.swagger.io/)， 这个swagger出代码工具很强大， 能生成多种语言的请求代码。 但出来的 Typescript 很Low， 耦合性太强, 不符合我追求的 __高内聚，低耦合__ 设计原则
+  虽然现在有很多项目可以实现 openapi 生成 api 层代码
+  eg: [https://editor.swagger.io/](https://editor.swagger.io/)， 虽然这个swagger出代码工具很强大， 能生成多种语言的请求代码，但 __不优雅__  不符合 __高内聚，低耦合__ __单一职责__ 设计原则
 
 
 ## Api 文档规范和生成规则
@@ -62,7 +62,14 @@ export let roleManage = {
 
 
 ## api 使用指南
+
 ```
+npm i -g openapi-typescript-cli
+
+```
+
+```
+openapi-typescript-cli -h
 Usage: index [options]
 
 openapi 生成 api 请求层代码.
@@ -76,5 +83,9 @@ Options:
   -n, --name <type>     输出文件名称， 默认为 index. 生成文件为 <name>.d.ts, <name>.ts， request.js (default: "index")
   -h, --help            display help for command
 ```
+```
+openapi-typescript-cli -u path/to/openapi.json -n outputfilename
+```
+
 ## Licence
 MIT License
