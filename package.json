@@ -3,7 +3,7 @@
   "author": "zhutaiyang <cngeekee@gmail.com>",
   "homepage": "https://zhuty.com/openapi-typescript-cli",
   "version": "1.1.0",
-  "description": "实现openapi格式的json(如 swagger, opendoc)生成 api 请求层代码",
+  "description": "最优雅的 OpenAPI(swagger) 到 TypeScript 代码生成工具",
   "main": "index.js",
   "bin": {
     "openapi-typescript-cli": "./bin/index.js"
