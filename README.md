@@ -1,12 +1,13 @@
-## openapi2code
-通过 openapi 文档生成 Typescript 接口请求层代码。 适用于 __FastAPi__， __swagger__，__OpenAPI__ 等符合 __Openapi v3__ 规范的JSON接口文档
+## openapi-typescript-cli
+最优雅的 OpenApi 生成 Typescript 接口请求层代码工具
+> 通过 openapi 文档生成 Typescript 接口请求层代码。 适用于 __FastAPi__， __swagger__，__OpenAPI__ 等符合 __Openapi v3__ 规范的JSON接口文档
 
-## 为什么写这个工具
-  虽然现在有很多项目可以实现 openapi 生成 api 层代码
+
+>  虽然现在有很多项目可以实现 openapi 生成 api 层代码
   eg: [https://editor.swagger.io/](https://editor.swagger.io/)， 虽然这个swagger出代码工具很强大， 能生成多种语言的请求代码，但 __不优雅__  不符合 __高内聚，低耦合__ __单一职责__ 设计原则
 
 
-## Api 文档规范和生成规则
+### 接口定义与代码生成
 
 #### api path 规则：
 ```
@@ -14,7 +15,7 @@
 ```
 > 说明： 这里的模块名通常和后端Springboot 的Controler 文件名相同， 函数名和Springboot的方法名相同
 
-#### 生成 Typescript 代码: 
+#### 生成的 Typescript 代码: 
 ```(typescript)
 export let roleManage = {
 
@@ -27,11 +28,12 @@ export let roleManage = {
   }),
 }
 ```
-> 说明：通常，params 和 data 参数是不混存的， 但是， 避免不了有些接口 POST 里面用 query 一起传参数。 所以， 也做了兼容， 只需要将 params 和 data 的一起放在 param 参数也可以使用， 如果有特殊情况无法兼容的， 可以在第二个参数传入 Axios 的参数， 在这个参数分别设置 params 和 data 即可。
+> 说明：通常，query参数 和 body参数是不混用的， 但是， 避免不了有些接口 POST 里面用 query 一起传参数。 这个工具也做了兼容， 只需要将 params 和 data 的一起放在 param 参数也可以使用， 如果有特殊情况无法兼容的， 可以在第二个参数传入 Axios 的参数， 在这个参数分别设置 params 和 data 即可。
 
 
 #### 业务使用
 ```
+import {userManagement} from '@/api/index''
   <Button
     type="primary"
     onClick={async () => {
@@ -44,7 +46,7 @@ export let roleManage = {
 ```
 
 
-## 生成类型文件和请求文件
+### 生成类型文件和请求文件
 推荐将 Api 请求层单独放在 src/api目录
 
 ```
@@ -61,10 +63,10 @@ export let roleManage = {
 
 
 
-## api 使用指南
+### api 使用指南
 
 ```
-npm i -g openapi-typescript-cli
+> npm i -g openapi-typescript-cli
 
 ```
 
@@ -84,7 +86,7 @@ Options:
   -h, --help            display help for command
 ```
 ```
-openapi-typescript-cli -u path/to/openapi.json -n outputfilename
+> openapi-typescript-cli -u path/to/openapi.json -n outputfilename
 ```
 
 ## Licence
