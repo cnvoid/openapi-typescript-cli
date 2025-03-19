@@ -1,0 +1,32 @@
+{
+  "name": "openapi-typescript-cli",
+  "author": "zhutaiyang <cngeekee@gmail.com>",
+  "homepage": "https://zhuty.com/openapi-typescript-cli",
+  "version": "1.0.3",
+  "description": "实现openapi格式的json(如 swagger, opendoc)生成 api 请求层代码",
+  "main": "index.js",
+  "bin": {
+    "openapi-typescript-cli": "./bin/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cnvoid/openapi-typescript-cli.git"
+  },
+  "scripts": {
+    "test": "openapi-typescript-cli -f ./api.json"
+  },
+  "keywords": [
+    "openapi",
+    "swaggertocode",
+    "swagger2code",
+    "openapi2code",
+    "swagger2typescript",
+    "openapi2typescript"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.8.3",
+    "commander": "^13.1.0",
+    "node-fetch": "^2.7.0"
+  }
+}
