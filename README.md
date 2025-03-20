@@ -63,7 +63,7 @@ import {userManagement} from '@/api/index''
 
 
 
-### api 使用指南
+### 使用指南
 
 ```
 > npm i -g openapi-typescript-cli
@@ -86,7 +86,9 @@ Options:
   -h, --help            display help for command
 ```
 ```
-> openapi-typescript-cli -u path/to/openapi.json -n outputfilename
+> openapi-typescript-cli -f path/to/openapi.json -n outputfilename
+
+> openapi-typescript-cli -u  http://domain:port/v3/api-docs -n outputfilename2
 ```
 
 ## Licence

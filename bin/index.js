@@ -140,7 +140,7 @@ const generateApi = async () => {
 
           if (operation.parameters) {
             let parameters = operation.parameters || []
-            let _typeName = `QueryType${operationId.replace(/_\d/g, '')}`;
+            let _typeName = `QueryType${operationId}`;
             localInterface += `export interface ${_typeName} {\n`
 
             for (let i = 0; i < parameters.length; i++) {
@@ -222,7 +222,7 @@ const generateApi = async () => {
 
           let _pType = paramType == 'any' ? queryType == 'any' ? 'any' : `${queryType}` : queryType == 'any' ? `${paramType}` : `${queryType} | ${paramType} | any`;
 
-          let api = `\n    //${description}\n    ${operationId.replace(/_\d/g, '')}: async (param: ${_pType}, opt: AxiosRequestConfig = {}): Promise<${responseType}> => await request({\n`;
+          let api = `\n    // ${description}\n    ${operationId}: async (param: ${_pType}, opt: AxiosRequestConfig = {}): Promise<${responseType}> => await request({\n`;
           api += `      url: '${path.replace(/\{(\w+)\}/g, '${parms[$1]}')}',\n`;
           api += `      method: '${method}',\n`;
           if (operation.parameters) {
@@ -254,7 +254,7 @@ const generateApi = async () => {
       }
 
       fs.writeFileSync(path.join(process.cwd(), fileName + '.ts'), apiCode, 'utf-8');
-      console.log('^_^ API code generated successfully: api.ts', path.join(process.cwd(), fileName + '.ts').toString());
+      console.log('\n^_^ API code generated successfully: api.ts', path.join(process.cwd(), fileName + '.ts').toString());
     }
     genApis()
     genInterface();
