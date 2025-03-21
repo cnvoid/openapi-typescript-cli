@@ -45,4 +45,9 @@ instance.interceptors.response.use(
   }
 );
 
+export function updateInstance(params) {
+    instance = {...instance, ...params}
+    
+}
+
 export default instance
