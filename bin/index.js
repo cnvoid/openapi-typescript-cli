@@ -11,6 +11,7 @@ program
   .option('-f, --apifile <type>', 'api json 文件路径')
   .option('-u, --url <type>', 'api json文件url地址, 通常为http://domain:port/v3/api-docs')
   .option('-n, --name <type>', '输出文件名称， 默认为 index. 生成文件为 <name>.d.ts, <name>.ts， request.js', 'index')
+  .option('-m, --middleware <type>', '中间件文件路径， 用于修改生成代码的模块名称和函数名称')
   .parse(process.argv);
 
 const options = program.opts();

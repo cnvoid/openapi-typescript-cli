@@ -83,6 +83,7 @@ Options:
   -f, --apifile <type>  api json 文件路径
   -u, --url <type>      api json文件url地址, 通常为 http://domain:port/v3/api-docs
   -n, --name <type>     输出文件名称， 默认为 index. 生成文件为 <name>.d.ts, <name>.ts， request.js (default: "index")
+  -m, --middleware      中间件文件， 用于自定义生成模块名和函数名
   -h, --help            display help for command
 ```
 ```
