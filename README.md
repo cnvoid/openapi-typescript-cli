@@ -4,7 +4,7 @@
 
 
 >  虽然现在有很多项目可以实现 openapi 生成 api 层代码
-  eg: [https://editor.swagger.io/](https://editor.swagger.io/)， 虽然这个swagger出代码工具很强大， 能生成多种语言的请求代码。 但生成的代码耦合性太高， __不优雅__  不符合 __高内聚，低耦合__ __单一职责__ 设计原则
+  eg: [https://editor.swagger.io/](https://editor.swagger.io/)， 虽然这个swagger出代码工具很强大， 能生成多种语言的请求代码。 但生成的代码耦合性太高， __不优雅__  不符合 __高内聚，低耦合__ __单一职责__ 设计原则。
 
 ### 使用指南
 
@@ -19,7 +19,7 @@ Usage: index [options]
 
 openapi 生成 api 请求层代码.
 推荐在 src/api 目录执行生成代码命令， 生成的代码会在当前目录下生成 api 请求文件.
-作者:zhuty.com@2025
+作者: zhuty.com
 
 Options:
   -V, --version         output the version number
@@ -41,7 +41,7 @@ Options:
 ```
  "/system/roleManage/deleteRole" # /业务名/模块名/函数名称
 ```
-> 说明： 这里的模块名通常和后端Springboot 的 Controler 文件名相同， 函数名和Springboot的方法名相同。 通常， 一个团队前后端协商定义规则， 可直接生成可执行代码， 但为了解决一些不讲规则的后端开发。 __后续会加上中间件， 可以根据 Path 进行自定义规则命名模块名和函数名__。
+> 说明： 这里的模块名通常和后端Springboot 的 Controler 文件名相同， 函数名和Springboot的方法名相同。 通常， 一个团队前后端协商定义规则， 可直接生成可执行代码， 但为了解决一些不讲规则的后端开发。 __加上中间件， 可以根据 Path 进行自定义规则命名模块名和函数名__。
 
 
 
@@ -83,11 +83,42 @@ import {userManagement} from '@/api/index''
 .
 └── src
     └── api
-        ├── index.d.ts  # 接口类型定义
-        ├── index.ts    # 接口请求方法
-        ├── login.d.ts  # 接口类型定义
-        ├── login.ts    # 接口请求方法
-        └── request.js  # 请求方法， 这里可以对 axios 进行设置 
+        ├── index.d.ts               # 接口类型定义
+        ├── index.ts                 # 接口请求方法
+        ├── login.d.ts               # 接口类型定义
+        ├── login.ts                 # 接口请求方法
+        ├── request.js               # 请求方法， 这里可以对 axios 进行设置 
+        └── middleware.example.js    # 中间件范式文件， 用于自定义模块名和函数名
+
+
+```
+
+### 使用中间件
+> 当接口文档没有按默认方式定义时， 或者对接口定义的方法名和模块名不满意时， 可以使用中间件进行更改生成的模块名和函数名
+
+```
+// middleware.js
+// TODO: 这个是中间件范式， 默认模块名取值path第二个值， 方法名取值operationId. 接口文档不满足业务时可以在此重新处理
+// TODO: openapi-typescript-cli -m ./middleware.js
+/**
+ * @param {
+ * operationId: 通常是 controller 的方法名
+ * description: 接口描述
+ * path: 接口文档的原生 path， 可以通过正则表达式处理取值
+ * method: http method
+ * tag: 文档标签， 这个作为模块名是比较严谨的， 但国内很多后端会把这块写成中文， 可以替换成英文使用
+ * }  
+ * @returns  {
+ * moduleName: 生成的接口模块名
+ * functionName: 生成接口的调用方法名， 默认取值 operationId
+ * }
+ */
+module.exports = function ({operationId, description, path, method, tag}){
+  return {
+    moduleName: tag,
+    functionName: operationId
+  }
+}
 
 ```
 

@@ -7,7 +7,7 @@ const fetch = require('node-fetch');
 
 program
   .version('1.0.0')
-  .description('openapi 生成 api 请求层代码. \n推荐在 src/api 目录执行生成代码命令， 生成的代码会在当前目录下生成 api 请求文件.\n作者:zhuty.com@2025')
+  .description('openapi 生成 api 请求层代码. \n推荐在 src/api 目录执行生成代码命令， 生成的代码会在当前目录下生成 api 请求文件.\n作者: zhuty.com @2025')
   .option('-f, --apifile <type>', 'api json 文件路径')
   .option('-u, --url <type>', 'api json文件url地址, 通常为http://domain:port/v3/api-docs')
   .option('-n, --name <type>', '输出文件名称， 默认为 index. 生成文件为 <name>.d.ts, <name>.ts， request.js', 'index')
@@ -15,12 +15,11 @@ program
   .parse(process.argv);
 
 const options = program.opts();
-console.log('Info: ', options);
+console.log('Commander options:', options);
 if(!(options.apifile || options.url)) {
   console.error('Error:  必须设置openapi文件路径或者url地址');
   return;
 }
-
 
 async function fetchRemoteFile(url) {
   try {
@@ -37,25 +36,26 @@ async function fetchRemoteFile(url) {
 }
 
 // Function to copy request.js to the user's current directory
-function copyRequestJsToUserDir() {
-  const sourceRequestJsPath = path.join(__dirname, './../request.js');
-  const destinationRequestJsPath = path.join(process.cwd(), 'request.js'); // Use process.cwd()
+function copyFileToUserDir(fileName) {
+  const sourceFilePath = path.join(__dirname, `./../${fileName}`);
+  const destinationFilePath = path.join(process.cwd(), fileName); // Use process.cwd()
 
-  if (fs.existsSync(destinationRequestJsPath)) {
-    console.log(`Skip: request.js already exists in the destination directory: ${destinationRequestJsPath}`);
+  if (fs.existsSync(destinationFilePath)) {
+    console.log(`Skip: ${fileName} already exists in the destination directory: ${destinationFilePath}`);
     return; // Exit the function without copying
   }
 
-  if (fs.existsSync(sourceRequestJsPath)) {
-    console.log(`Info: Copying request.js from ${sourceRequestJsPath} to ${destinationRequestJsPath}`);
-    fs.copyFileSync(sourceRequestJsPath, destinationRequestJsPath);
-    console.log(`Info: request.js copied to ${destinationRequestJsPath}`);
+  if (fs.existsSync(sourceFilePath)) {
+    console.log(`Info: Copying ${fileName} from ${sourceFilePath} to ${destinationFilePath}`);
+    fs.copyFileSync(sourceFilePath, destinationFilePath);
+    console.log(`Info: ${fileName} copied to ${destinationFilePath}`);
   } else {
-    console.info(`Skip: Source request.js not found at ${sourceRequestJsPath}`);
+    console.info(`Skip: Source ${fileName} not found at ${sourceFilePath}`);
     process.exit(1); // Exit with an error code
   }
 }
-copyRequestJsToUserDir();
+copyFileToUserDir('request.js');
+copyFileToUserDir('middleware.example.js')
 
 const generateApi = async () => {
   let interfaceCode = ``;
@@ -112,7 +112,7 @@ const generateApi = async () => {
         interfaceCode += `}\n\n`;
       }
       fs.writeFileSync(path.join(process.cwd(), fileName + '.d.ts'), interfaceCode + '\n//查询组合类型\n' + localInterface, 'utf-8');
-      console.log('^_^ Interface code generated successfully: api.d.ts', path.join(process.cwd(), fileName + '.d.ts').toString());
+      console.log('\n=====================^_^===================\n SUCCESS: Interface code generated successfully: ', path.join(process.cwd(), fileName + '.d.ts').toString());
     }
 
     function genApis() {
@@ -122,18 +122,31 @@ const generateApi = async () => {
       let paths = openapiJson.paths;
       for (const path in paths) {
 
-        /\/\w*\/(\w*)\/(\w*)$/.test(path)
-        let apiGroup = RegExp.$1;
-        let apiName = RegExp.$2;
-        if (!apiGroups[apiGroup]) {
-          apiGroups[apiGroup] = [];
-        }
-
         let methods = paths[path];
         for (const method in methods) {
+
+        /\/(\w*)\/(\w*)\/(\w*)$/.test(path)
+        let apiGroup = RegExp.$2 || RegExp.$1;
+        let apiName = RegExp.$3;
+
           let operation = methods[method];
           let operationId = operation.operationId;
           let description = operation.description;
+          let tag = operation.tags[0];
+          apiName = operationId
+
+          if(options.middleware) {
+            let middleware = require(options.middleware);
+            let res = middleware({operationId, description, path, method, tag})
+            apiGroup = !!res.moduleName ? res.moduleName : apiGroup;
+            apiName = !!res.functionName ? res.functionName : apiName;
+
+          }
+
+          if (!apiGroups[apiGroup]) {
+            apiGroups[apiGroup] = [];
+          }
+  
 
           let paramType = 'any';
           let queryType = 'any';
@@ -193,7 +206,7 @@ const generateApi = async () => {
                   paramType = typeFormat[schema?.items?.type] + '[]';
                 }
               } else {
-                console.log(schema);
+                // console.log(schema);
                 paramType = typeFormat[schema.type];
               }
             }
@@ -223,7 +236,7 @@ const generateApi = async () => {
 
           let _pType = paramType == 'any' ? queryType == 'any' ? 'any' : `${queryType}` : queryType == 'any' ? `${paramType}` : `${queryType} | ${paramType} | any`;
 
-          let api = `\n    // ${description}\n    ${operationId}: async (param: ${_pType}, opt: AxiosRequestConfig = {}): Promise<${responseType}> => await request({\n`;
+          let api = `\n    // ${description}\n    ${apiName}: async (param: ${_pType}, opt: AxiosRequestConfig = {}): Promise<${responseType}> => await request({\n`;
           api += `      url: '${path.replace(/\{(\w+)\}/g, '${parms[$1]}')}',\n`;
           api += `      method: '${method}',\n`;
           if (operation.parameters) {
@@ -255,7 +268,7 @@ const generateApi = async () => {
       }
 
       fs.writeFileSync(path.join(process.cwd(), fileName + '.ts'), apiCode, 'utf-8');
-      console.log('\n^_^ API code generated successfully: api.ts', path.join(process.cwd(), fileName + '.ts').toString());
+      console.log('\n=====================^_^====================\n SUCCESS:  API code generated successfully: ', path.join(process.cwd(), fileName + '.ts').toString());
     }
     genApis()
     genInterface();
