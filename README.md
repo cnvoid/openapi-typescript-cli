@@ -4,8 +4,36 @@
 
 
 >  虽然现在有很多项目可以实现 openapi 生成 api 层代码
-  eg: [https://editor.swagger.io/](https://editor.swagger.io/)， 虽然这个swagger出代码工具很强大， 能生成多种语言的请求代码，但 __不优雅__  不符合 __高内聚，低耦合__ __单一职责__ 设计原则
+  eg: [https://editor.swagger.io/](https://editor.swagger.io/)， 虽然这个swagger出代码工具很强大， 能生成多种语言的请求代码。 但生成的代码耦合性太高， __不优雅__  不符合 __高内聚，低耦合__ __单一职责__ 设计原则
 
+### 使用指南
+
+```
+> npm i -g openapi-typescript-cli
+
+```
+
+```
+openapi-typescript-cli -h
+Usage: index [options]
+
+openapi 生成 api 请求层代码.
+推荐在 src/api 目录执行生成代码命令， 生成的代码会在当前目录下生成 api 请求文件.
+作者:zhuty.com@2025
+
+Options:
+  -V, --version         output the version number
+  -f, --apifile <type>  api json 文件路径
+  -u, --url <type>      api json文件url地址, 通常为 http://domain:port/v3/api-docs
+  -n, --name <type>     输出文件名称， 默认为 index. 生成文件为 <name>.d.ts, <name>.ts， request.js (default: "index")
+  -m, --middleware      中间件文件， 用于自定义生成模块名和函数名 （2.0版本实现）
+  -h, --help            display help for command
+```
+```
+> openapi-typescript-cli -f path/to/openapi.json -n outputfilename
+
+> openapi-typescript-cli -u  http://domain:port/v3/api-docs -n outputfilename2
+```
 
 ### 接口定义与代码生成
 
@@ -13,7 +41,9 @@
 ```
  "/system/roleManage/deleteRole" # /业务名/模块名/函数名称
 ```
-> 说明： 这里的模块名通常和后端Springboot 的Controler 文件名相同， 函数名和Springboot的方法名相同
+> 说明： 这里的模块名通常和后端Springboot 的 Controler 文件名相同， 函数名和Springboot的方法名相同。 通常， 一个团队前后端协商定义规则， 可直接生成可执行代码， 但为了解决一些不讲规则的后端开发。 __后续会加上中间件， 可以根据 Path 进行自定义规则命名模块名和函数名__。
+
+
 
 #### 生成的 Typescript 代码: 
 ```(typescript)
@@ -61,36 +91,6 @@ import {userManagement} from '@/api/index''
 
 ```
 
-
-
-### 使用指南
-
-```
-> npm i -g openapi-typescript-cli
-
-```
-
-```
-openapi-typescript-cli -h
-Usage: index [options]
-
-openapi 生成 api 请求层代码.
-推荐在 src/api 目录执行生成代码命令， 生成的代码会在当前目录下生成 api 请求文件.
-作者:zhuty.com@2025
-
-Options:
-  -V, --version         output the version number
-  -f, --apifile <type>  api json 文件路径
-  -u, --url <type>      api json文件url地址, 通常为 http://domain:port/v3/api-docs
-  -n, --name <type>     输出文件名称， 默认为 index. 生成文件为 <name>.d.ts, <name>.ts， request.js (default: "index")
-  -m, --middleware      中间件文件， 用于自定义生成模块名和函数名
-  -h, --help            display help for command
-```
-```
-> openapi-typescript-cli -f path/to/openapi.json -n outputfilename
-
-> openapi-typescript-cli -u  http://domain:port/v3/api-docs -n outputfilename2
-```
 
 ## Licence
 MIT License
