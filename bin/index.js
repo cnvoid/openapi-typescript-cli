@@ -15,6 +15,7 @@ program
   .parse(process.argv);
 
 const options = program.opts();
+console.log('🌟🌟🌟🌟Star: https://github.com/cnvoid/openapi-typescript-cli 🌟🌟🌟🌟')
 console.log('Commander options:', options);
 if(!(options.apifile || options.url)) {
   console.error('Error:  必须设置openapi文件路径或者url地址');
@@ -41,16 +42,16 @@ function copyFileToUserDir(fileName) {
   const destinationFilePath = path.join(process.cwd(), fileName); // Use process.cwd()
 
   if (fs.existsSync(destinationFilePath)) {
-    console.log(`Skip: ${fileName} already exists in the destination directory: ${destinationFilePath}`);
+    console.log(`✅: ${fileName} already exists in the destination directory: ${destinationFilePath}`);
     return; // Exit the function without copying
   }
 
   if (fs.existsSync(sourceFilePath)) {
-    console.log(`Info: Copying ${fileName} from ${sourceFilePath} to ${destinationFilePath}`);
+    console.log(`🔂: Copying ${fileName} from ${sourceFilePath} to ${destinationFilePath}`);
     fs.copyFileSync(sourceFilePath, destinationFilePath);
-    console.log(`Info: ${fileName} copied to ${destinationFilePath}`);
+    console.log(`🤖: ${fileName} copied to ${destinationFilePath}`);
   } else {
-    console.info(`Skip: Source ${fileName} not found at ${sourceFilePath}`);
+    console.info(`🍃: Source ${fileName} not found at ${sourceFilePath}`);
     process.exit(1); // Exit with an error code
   }
 }
@@ -112,7 +113,7 @@ const generateApi = async () => {
         interfaceCode += `}\n\n`;
       }
       fs.writeFileSync(path.join(process.cwd(), fileName + '.d.ts'), interfaceCode + '\n//查询组合类型\n' + localInterface, 'utf-8');
-      console.log('\n=====================^_^===================\n SUCCESS: Interface code generated successfully: ', path.join(process.cwd(), fileName + '.d.ts').toString());
+      console.log('🎉🎉 SUCCESS: Interface code generated successfully: ', path.join(process.cwd(), fileName + '.d.ts').toString());
     }
 
     function genApis() {
@@ -126,13 +127,14 @@ const generateApi = async () => {
         for (const method in methods) {
 
         /\/(\w*)\/(\w*)\/(\w*)$/.test(path)
-        let apiGroup = RegExp.$2 || RegExp.$1;
+        let apiGroup = RegExp.$2 || RegExp.$1 || 'dftGroup';
         let apiName = RegExp.$3;
 
-          let operation = methods[method];
+          let operation = methods[method] || {};
           let operationId = operation.operationId;
-          let description = operation.description;
-          let tag = operation.tags[0];
+          let description = operation.description || operation.summary || '';
+          let parms = operation.parameters;
+          let tag = operation?.tags?.[0] || {};
           apiName = operationId
 
           if(options.middleware) {
@@ -214,7 +216,8 @@ const generateApi = async () => {
 
           if (operation.responses) {
             let responses = operation.responses;
-            let response = responses['200'];
+            let response = responses['200'] || {};
+
             let content = response.content && (response.content['application/json'] || response.content['application/x-www-form-urlencoded'] || response.content['multipart/form-data'] || response.content['application/octet-stream'] || response.content['text/plain'] || response.content['*/*']);
             let schema = content?.schema ?? {};
             if (schema['$ref']) {
@@ -236,7 +239,7 @@ const generateApi = async () => {
 
           let _pType = paramType == 'any' ? queryType == 'any' ? 'any' : `${queryType}` : queryType == 'any' ? `${paramType}` : `${queryType} | ${paramType} | any`;
 
-          let api = `\n    // ${description}\n    ${apiName}: async (param: ${_pType}, opt: AxiosRequestConfig = {}): Promise<${responseType}> => await request({\n`;
+          let api = `\n    // ${(description || '')?.replace(/\n/g, ' ')}\n    ${apiName}: async (param: ${_pType}, opt: AxiosRequestConfig = {}): Promise<${responseType}> => await request({\n`;
           api += `      url: '${path.replace(/\{(\w+)\}/g, '${parms[$1]}')}',\n`;
           api += `      method: '${method}',\n`;
           if (operation.parameters) {
@@ -268,7 +271,7 @@ const generateApi = async () => {
       }
 
       fs.writeFileSync(path.join(process.cwd(), fileName + '.ts'), apiCode, 'utf-8');
-      console.log('\n=====================^_^====================\n SUCCESS:  API code generated successfully: ', path.join(process.cwd(), fileName + '.ts').toString());
+      console.log('🎉🎉 SUCCESS:  API code generated successfully: ', path.join(process.cwd(), fileName + '.ts').toString());
     }
     genApis()
     genInterface();
