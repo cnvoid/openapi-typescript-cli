@@ -4,7 +4,7 @@
 // 有问题欢迎联系 作者微信： zhutty
 import axios from 'axios'
 
-const instance = axios.create({});
+let instance = axios.create({});
 
 instance.defaults.baseURL = '/';
 instance.defaults.headers.common['Authorization'] = '';
