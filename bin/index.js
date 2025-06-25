@@ -68,7 +68,7 @@ const generateApi = async () => {
 
   if (options.apifile) {
     console.log('apifile:', options.apifile);
-    openapiFilePath = path.join(__dirname, options.apifile);
+    openapiFilePath = path.resolve(process.cwd(), options.apifile);
   }
 
   try {
@@ -138,7 +138,8 @@ const generateApi = async () => {
           apiName = operationId
 
           if(options.middleware) {
-            let middleware = require(options.middleware);
+            const middlewarePath = path.resolve(process.cwd(), options.middleware);
+            let middleware = require(middlewarePath);
             let res = middleware({operationId, description, path, method, tag})
             apiGroup = !!res.moduleName ? res.moduleName : apiGroup;
             apiName = !!res.functionName ? res.functionName : apiName;
@@ -283,4 +284,3 @@ const generateApi = async () => {
 };
 
 generateApi();
-
