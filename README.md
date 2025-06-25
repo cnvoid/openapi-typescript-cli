@@ -31,6 +31,9 @@ Options:
 > openapi-typescript-cli -f path/to/openapi.json -n outputfilename
 
 > openapi-typescript-cli -u  http://domain:port/v3/api-docs -n outputfilename2
+
+使用 npx 运行：
+> npx openapi-typescript-cli -u http://localhost:8008/openapi.json -m ./middleware.example.js
 ```
 
 ### 接口定义与代码生成

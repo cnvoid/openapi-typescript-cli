@@ -138,7 +138,7 @@ const generateApi = async () => {
           apiName = operationId
 
           if(options.middleware) {
-            const middlewarePath = path.resolve(process.cwd(), options.middleware);
+            const middlewarePath = require('path').resolve(process.cwd(), options.middleware);
             let middleware = require(middlewarePath);
             let res = middleware({operationId, description, path, method, tag})
             apiGroup = !!res.moduleName ? res.moduleName : apiGroup;
