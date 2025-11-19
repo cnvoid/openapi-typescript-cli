@@ -2,8 +2,8 @@
   "name": "openapi-typescript-cli",
   "author": "zhutaiyang <cngeekee@gmail.com>",
   "homepage": "https://www.zhuty.com/cnvoid-post/openapi-typescript-cli",
-  "version": "2.2.4",
-  "description": "最优雅的 OpenAPI(swagger) 到 TypeScript 代码生成工具",
+  "version": "2.2.5",
+  "description": "The most elegant OpenAPI(swagger) to TypeScript code generation tool",
   "main": "index.js",
   "bin": {
     "openapi-typescript-cli": "./bin/index.js"

@@ -1,57 +1,149 @@
-## openapi-typescript-cli
-最优雅的 OpenApi 接口文档生成 Typescript 接口请求层代码工具
-> 通过 openapi 文档生成 Typescript 接口请求层代码。 适用于 __FastAPI__， __swagger__，__OpenAPI__ 等符合 __Openapi v3__ 规范的JSON接口文档
+# openapi-typescript-cli
 
+> The most elegant tool for generating TypeScript interface request layer code from OpenAPI documentation
 
+Generate type-safe TypeScript API client code directly from OpenAPI/Swagger documentation. Compatible with Spring Boot (springdoc-openapi, springfox), FastAPI, and any framework that generates OpenAPI v3 compliant JSON.
 
-### 使用指南
+## Features
+
+- 🚀 **Zero Configuration** - Generate type-safe API code with a single command
+- 📝 **Type Definitions** - Automatically generates TypeScript type definitions from OpenAPI schemas
+- 🔧 **Axios Integration** - Built-in Axios wrapper with interceptors support
+- 🎯 **Flexible Naming** - Customize module and function names with middleware
+- 🔄 **Non-Destructive** - Preserves your custom `request.js` and middleware files
+- ⚡ **Multiple Sources** - Support both local JSON files and remote URLs
+
+## Installation
+
+```bash
+npm install -g openapi-typescript-cli
+```
+
+Or use with npx (no installation required):
+
+```bash
+npx openapi-typescript-cli --help
+```
+
+## Quick Start
+
+### Step 1: Get OpenAPI Documentation from Spring Boot
+
+If you're using Spring Boot, ensure your project has OpenAPI documentation enabled. Common endpoints:
+
+- **springdoc-openapi**: `http://localhost:8080/v3/api-docs`
+- **springfox**: `http://localhost:8080/v2/api-docs`
+- **Custom path**: Check your Spring Boot configuration
+
+### Step 2: Generate TypeScript Code
+
+Navigate to your frontend project's API directory:
+
+```bash
+cd src/api
+```
+
+Generate code from a remote URL:
+
+```bash
+openapi-typescript-cli -u http://localhost:8080/v3/api-docs -n index
+```
+
+Or from a local JSON file:
+
+```bash
+openapi-typescript-cli -f path/to/openapi.json -n index
+```
+
+### Step 3: Use Generated Code
+
+```typescript
+import { roleManage } from '@/api/index';
+
+// The generated function is fully typed
+const result = await roleManage.deleteRole([1, 2, 3]);
+console.log(result);
+```
+
+## Command Line Options
 
 ```
-> npm i -g openapi-typescript-cli
-
-```
-
-```
-openapi-typescript-cli -h
-Usage: index [options]
-
-openapi 生成 api 请求层代码.
-推荐在 src/api 目录执行生成代码命令， 生成的代码会在当前目录下生成 api 请求文件.
-作者: zhuty.com
+Usage: openapi-typescript-cli [options]
 
 Options:
-  -V, --version         output the version number
-  -f, --apifile <type>  api json 文件路径
-  -u, --url <type>      api json文件url地址, 通常为 http://domain:port/v3/api-docs
-  -n, --name <type>     输出文件名称， 默认为 index. 生成文件为 <name>.d.ts, <name>.ts， request.js (default: "index")
-  -m, --middleware      中间件文件， 用于自定义生成模块名和函数名 （2.0版本实现）
-  -h, --help            display help for command
-```
-```
-> openapi-typescript-cli -f path/to/openapi.json -n outputfilename
-
-> openapi-typescript-cli -u  http://domain:port/v3/api-docs -n outputfilename2
-
-使用 npx 运行：
-> npx openapi-typescript-cli -u http://localhost:8008/openapi.json -m ./middleware.example.js
+  -V, --version           Output version number
+  -f, --apifile <path>    Path to OpenAPI JSON file
+  -u, --url <url>         URL of OpenAPI JSON file (e.g., http://localhost:8080/v3/api-docs)
+  -n, --name <name>       Output file name (default: "index")
+                          Generates: <name>.ts, <name>.d.ts, request.js
+  -m, --middleware <path> Middleware file for customizing module/function names
+  -h, --help              Display help
 ```
 
-### 接口定义与代码生成
+### Examples
 
-#### api path 规则：
+Generate from remote Spring Boot API:
+
+```bash
+openapi-typescript-cli -u http://localhost:8080/v3/api-docs -n api
 ```
- "/system/roleManage/deleteRole" # /业务名/模块名/函数名称
+
+Generate from local file with custom name:
+
+```bash
+openapi-typescript-cli -f ./openapi.json -n userApi
 ```
-> 说明： 这里的模块名通常和后端Springboot 的 Controler 文件名相同， 函数名和Springboot的方法名相同。 通常， 一个团队前后端协商定义规则， 可直接生成可执行代码， 但为了解决一些不讲规则的后端开发。因此， __加了中间件， 可以根据 Path 进行自定义规则命名模块名和函数名__。
 
+Generate with middleware:
 
+```bash
+openapi-typescript-cli -u http://localhost:8080/v3/api-docs -m ./middleware.js -n api
+```
 
-#### 生成的 Typescript 代码: 
-```(typescript)
+## Generated Code Structure
+
+After running the command, you'll get the following files:
+
+```
+src/api/
+├── index.d.ts              # TypeScript type definitions
+├── index.ts                # API request methods
+├── request.js              # Axios instance with interceptors
+└── middleware.example.js   # Middleware template (if not exists)
+```
+
+### Generated Files
+
+#### `index.d.ts` - Type Definitions
+
+Contains all TypeScript interfaces and types extracted from OpenAPI schemas:
+
+```typescript
+export namespace Type {
+  export interface ResponseBoolean {
+    code: number;
+    message: string;
+    data: boolean;
+  }
+  // ... more types
+}
+```
+
+#### `index.ts` - API Methods
+
+Generated API methods grouped by modules:
+
+```typescript
+import request from "./request";
+import { AxiosRequestConfig } from 'axios';
+import * as Type from './index.d';
+
 export let roleManage = {
-
-  //删除角色
-  deleteRole: async (param: number[], opt: AxiosRequestConfig = {}): Promise<Type.ResponseBoolean> => await request({
+  // Delete role
+  deleteRole: async (
+    param: number[], 
+    opt: AxiosRequestConfig = {}
+  ): Promise<Type.ResponseBoolean> => await request({
     url: '/system/roleManage/deleteRole',
     method: 'post',
     data: param,
@@ -59,74 +151,239 @@ export let roleManage = {
   }),
 }
 ```
-> 说明：通常，query参数 和 body参数是不混用的， 但是， 避免不了有些接口 POST 里面用 query 一起传参数。 这个工具也做了兼容， 只需要将 params 和 data 的一起放在 param 参数也可以使用， 如果有特殊情况无法兼容的， 可以在第二个参数传入 Axios 的参数， 在这个参数分别设置 params 和 data 即可对于有些接口可能需要使用不同的Header, 也可以在第二个参数设置{header:{}}
 
+#### `request.js` - Axios Configuration
 
-#### 业务使用
-```
-import {userManagement} from '@/api/index''
-  <Button
-    type="primary"
-    onClick={async () => {
-      let res = await userManagement.deleteRole([1, 2]);
-      console.log(res);
-    }}
-  >
-    测试按钮
-  </Button>
-```
+A pre-configured Axios instance with interceptors. This file is **never overwritten** on subsequent generations, so you can safely customize it:
 
+```javascript
+import axios from 'axios';
 
-### 生成类型文件和请求文件
-推荐将 Api 请求层单独放在 src/api目录。
-> 默认会生成 基于 __axios.js__封装的 __request.js__ 和 __middleware.example.js__ 。 在目录中已经有这两个文件时， 再次生成过程不会覆盖这两个文件， 里面自定义的内容会保留。
-
-```
-.
-└── src
-    └── api
-        ├── index.d.ts               # 接口类型定义
-        ├── index.ts                 # 接口请求方法
-        ├── login.d.ts               # 接口类型定义
-        ├── login.ts                 # 接口请求方法
-        ├── request.js               # 请求方法， 这里可以对 axios 进行设置 
-        └── middleware.example.js    # 中间件范式文件， 用于自定义模块名和函数名
-
-
-```
-
-### 使用中间件
-> 当接口文档没有按默认方式定义时， 或者对接口定义的方法名和模块名不满意时， 可以使用中间件进行更改生成的模块名和函数名
-
-```
-// middleware.js
-// TODO: 这个是中间件范式， 默认模块名取值path第二个值， 方法名取值operationId. 接口文档不满足业务时可以在此重新处理
-// TODO: openapi-typescript-cli -m ./middleware.js
-/**
- * @param {
- * operationId: 通常是 controller 的方法名
- * description: 接口描述
- * path: 接口文档的原生 path， 可以通过正则表达式处理取值
- * method: http method
- * tag: 文档标签， 这个作为模块名是比较严谨的， 但国内很多后端会把这块写成中文， 可以替换成英文使用
- * }  
- * @returns  {
- * moduleName: 生成的接口模块名
- * functionName: 生成接口的调用方法名， 默认取值 operationId
- * }
- */
-module.exports = function ({operationId, description, path, method, tag}){
-  return {
-    moduleName: tag,
-    functionName: operationId
+const instance = axios.create({
+  baseURL: '/',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
   }
-}
+});
 
+// Request interceptor
+instance.interceptors.request.use((config) => {
+  // Add auth token, logging, etc.
+  return config;
+});
+
+// Response interceptor
+instance.interceptors.response.use(
+  (res) => {
+    // Handle responses, errors, etc.
+    return res.data;
+  },
+  (error) => {
+    // Handle errors
+    return Promise.reject(error);
+  }
+);
+
+export default instance;
 ```
 
-## 后续计划
-暂时还没想好，目前方案基本可以满足前端的所有场景。 虽然有必要对必传参数校验， 通常来讲， 开发过程是可以控制的， 意义不是特别大。 有好的建议欢迎留言，提 Issue.
+## Code Generation Rules
 
+### Default Module and Function Naming
 
-## Licence
+The tool extracts module and function names from the API path:
+
+- **Path pattern**: `/system/roleManage/deleteRole`
+- **Module name**: `roleManage` (second segment)
+- **Function name**: `operationId` from OpenAPI (usually matches controller method name)
+
+### API Path Convention
+
+For best results, follow this path convention:
+
+```
+/business_prefix/module_name/function_name
+```
+
+Example:
+```
+/system/roleManage/deleteRole    → module: roleManage, function: deleteRole
+/user/profile/getUserInfo        → module: profile, function: getUserInfo
+/order/payment/processPayment    → module: payment, function: processPayment
+```
+
+## Using Middleware for Custom Naming
+
+When your OpenAPI documentation doesn't follow the default naming convention, use middleware to customize the generated code.
+
+### Creating Middleware
+
+Create a `middleware.js` file:
+
+```javascript
+/**
+ * Customize module and function names
+ * 
+ * @param {Object} options
+ * @param {string} options.operationId - Usually the controller method name
+ * @param {string} options.description - API description
+ * @param {string} options.path - Original API path from OpenAPI spec
+ * @param {string} options.method - HTTP method (get, post, put, delete, etc.)
+ * @param {string} options.tag - OpenAPI tag (often used for grouping)
+ * @returns {Object} {moduleName, functionName}
+ */
+module.exports = function ({operationId, description, path, method, tag}) {
+  // Example: Extract module name from path using regex
+  const pathMatch = path.match(/\/(\w+)\/(\w+)/);
+  const moduleName = pathMatch ? pathMatch[2] : tag || 'default';
+  
+  // Example: Use operationId as function name, or transform it
+  const functionName = operationId || 'default';
+  
+  return {
+    moduleName: moduleName,
+    functionName: functionName
+  };
+};
+```
+
+### Using Middleware
+
+```bash
+openapi-typescript-cli -u http://localhost:8080/v3/api-docs -m ./middleware.js -n index
+```
+
+### Common Middleware Use Cases
+
+**1. Use OpenAPI tags as module names:**
+
+```javascript
+module.exports = function ({operationId, tag, path, method}) {
+  return {
+    moduleName: tag || 'default',
+    functionName: operationId
+  };
+};
+```
+
+**2. Transform Chinese tags to English:**
+
+```javascript
+const tagMap = {
+  '用户管理': 'userManagement',
+  '角色管理': 'roleManagement',
+  // ... more mappings
+};
+
+module.exports = function ({operationId, tag, path, method}) {
+  return {
+    moduleName: tagMap[tag] || tag,
+    functionName: operationId
+  };
+};
+```
+
+**3. Custom path parsing:**
+
+```javascript
+module.exports = function ({operationId, path, method}) {
+  // Custom regex for your path structure
+  const match = path.match(/\/api\/(v\d+)\/(\w+)\/(\w+)/);
+  
+  return {
+    moduleName: match ? match[2] : 'default',
+    functionName: operationId
+  };
+};
+```
+
+## Advanced Usage
+
+### Handling Query and Body Parameters
+
+The generated code automatically handles both query parameters and request body:
+
+```typescript
+// POST with body
+await roleManage.deleteRole([1, 2, 3]);
+
+// GET with query parameters
+await userApi.getUserList({ page: 1, size: 10 });
+
+// POST with both query and body (use opt parameter)
+await orderApi.createOrder(
+  { productId: 123, quantity: 2 },
+  {
+    params: { source: 'web' },
+    data: { discount: 10 }
+  }
+);
+```
+
+### Custom Headers
+
+Pass custom headers through the second parameter:
+
+```typescript
+await api.getData(
+  params,
+  {
+    headers: {
+      'X-Custom-Header': 'value',
+      'Authorization': 'Bearer token'
+    }
+  }
+);
+```
+
+### Using in React Components
+
+```typescript
+import { userManagement } from '@/api/index';
+import { Button } from 'antd';
+
+function UserComponent() {
+  const handleDelete = async (ids: number[]) => {
+    try {
+      const result = await userManagement.deleteRole(ids);
+      if (result.data) {
+        console.log('Deleted successfully');
+      }
+    } catch (error) {
+      console.error('Delete failed:', error);
+    }
+  };
+
+  return (
+    <Button onClick={() => handleDelete([1, 2])}>
+      Delete Role
+    </Button>
+  );
+}
+```
+
+## Best Practices
+
+1. **Generate in dedicated directory**: Always run the command in `src/api` or similar directory
+2. **Customize request.js once**: Add authentication, error handling, and logging to `request.js`
+3. **Use middleware early**: If your API paths are inconsistent, create middleware from the start
+4. **Version control generated files**: Include generated files in git, but mark them clearly
+5. **Regenerate when API changes**: Re-run the command when backend API documentation updates
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue**: Generated code has incorrect module/function names  
+**Solution**: Use middleware to customize naming logic
+
+**Issue**: Request fails with CORS or authentication errors  
+**Solution**: Configure baseURL and headers in `request.js`
+
+**Issue**: Types are not imported correctly  
+**Solution**: Ensure TypeScript is configured to resolve paths correctly in `tsconfig.json`
+
+## License
+
 MIT License
